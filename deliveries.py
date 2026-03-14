@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from database import *
 
-def show(connect):
+def show(connect, status_filter="All"):
 
     st.title("🚚 Deliveries")
 
@@ -31,6 +31,10 @@ def show(connect):
         deliveries,
         columns=["ID","Product","Quantity","Status"]
     )
+
+    # 🔎 Apply status filter
+    if status_filter != "All":
+        df = df[df["Status"] == status_filter]
 
     st.subheader("Delivery List")
 

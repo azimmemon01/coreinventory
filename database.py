@@ -231,8 +231,6 @@ def create_transfers_table(conn):
     """)
 
     conn.commit()
-
-
 def add_transfer(conn, from_wh, to_wh, product, quantity):
 
     cursor = conn.cursor()
@@ -261,7 +259,7 @@ def get_transfers(conn):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT from_wh, to_wh, product, quantity FROM transfers"
+        "SELECT from_wh, to_wh, product, quantity, status FROM transfers"
     )
 
     return cursor.fetchall()
@@ -441,3 +439,14 @@ def pending_receipts(conn):
     )
 
     return cursor.fetchone()[0]
+def get_categories(conn):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT DISTINCT category FROM products"
+    )
+
+    rows = cursor.fetchall()
+
+    return [r[0] for r in rows]

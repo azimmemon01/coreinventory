@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from database import *
 
-def show(connect):
+def show(connect,status_filter="All"):
 
     st.title("📥 Receipts")
 

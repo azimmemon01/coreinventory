@@ -115,10 +115,32 @@ else:
     st.title("Inventory Management System")
 
     st.sidebar.success(f"Welcome {st.session_state.current_user}")
+    st.sidebar.subheader("Filters")
+
+    doc_type = st.sidebar.selectbox(
+    "Document Type",
+    ["All", "Receipts", "Deliveries", "Transfers"]
+   )
+
+    status_filter = st.sidebar.selectbox(
+    "Status",
+    ["All", "Pending", "Received", "Delivered", "Scheduled"]
+    )
+
+    warehouse_filter = st.sidebar.selectbox(
+    "Warehouse",
+    ["All", "Main", "Secondary"]
+     )
+
+    categories = ["All"] + get_categories(connect)
+    category_filter = st.sidebar.selectbox(
+    "Product Category",
+    categories
+    )
 
     page = st.sidebar.selectbox(
         "IMS Menu",
-        ["Dashboard", "Products", "Stock Management", "Deliveries", "Transfers","Stock History","receipts"],
+        ["Dashboard", "Products", "Stock Management", "Deliveries", "Transfers","Stock History","Receipts"],
     )
 
     if st.sidebar.button("Logout"):
@@ -134,11 +156,11 @@ else:
     elif page == "Stock Management":
         stock.show(connect)
     elif page == "Deliveries":
-        deliveries.show(connect)
+        deliveries.show(connect,status_filter)
 
     elif page == "Transfers":
-        transfers.show(connect)
+        transfers.show(connect,status_filter)
     elif page == "Stock History":
         history.show(connect)
-    elif page == "receipts":
-        receipts.show(connect)
+    elif page == "Receipts":
+        receipts.show(connect,status_filter)

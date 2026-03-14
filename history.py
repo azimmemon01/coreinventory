@@ -13,4 +13,16 @@ def show(connect):
         columns=["Product","Action","Quantity","Date"]
     )
 
+    if df.empty:
+        st.info("No stock activity recorded yet.")
+        return
+
+    st.subheader("Stock Transactions")
+
     st.dataframe(df, use_container_width=True)
+
+    st.divider()
+
+    st.subheader("Recent Activity")
+
+    st.write(f"Total Transactions: {len(df)}")
