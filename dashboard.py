@@ -19,7 +19,7 @@ def show(connect):
 
     col5, col6 = st.columns(2)
 
-    col5.metric("Pending Receipts", pending_deliveries(connect))
+    col5.metric("Pending Receipts", pending_receipts(connect))
     col6.metric("Transfers Scheduled", scheduled_transfers(connect))
 
     st.divider()

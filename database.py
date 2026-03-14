@@ -370,3 +370,74 @@ def get_stock_history(conn):
     )
 
     return cursor.fetchall()
+
+def create_receipts_table(conn):
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS receipts(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product TEXT,
+        quantity INTEGER,
+        status TEXT
+    )
+    """)
+
+    conn.commit()
+def add_receipt(conn, product, quantity, status):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO receipts (product, quantity, status) VALUES (?,?,?)",
+        (product, quantity, status)
+    )
+
+    conn.commit()
+def get_receipts(conn):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id, product, quantity, status FROM receipts"
+    )
+
+    return cursor.fetchall()
+def update_receipt_status(conn, receipt_id, status):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT product, quantity FROM receipts WHERE id=?",
+        (receipt_id,)
+    )
+
+    product, qty = cursor.fetchone()
+
+    cursor.execute(
+        "UPDATE receipts SET status=? WHERE id=?",
+        (status, receipt_id)
+    )
+
+    if status == "Received":
+
+        product_id = get_product_id(conn, product)
+
+        cursor.execute(
+            "UPDATE products SET quantity = quantity + ? WHERE id=?",
+            (qty, product_id)
+        )
+
+        add_stock_transaction(conn, product, "Receipt", qty)
+
+    conn.commit()
+def pending_receipts(conn):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM receipts WHERE status='Pending'"
+    )
+
+    return cursor.fetchone()[0]
