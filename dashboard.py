@@ -52,4 +52,15 @@ def show(connect):
     if not low_stock_df.empty:
       st.subheader(" Low Stock Alerts")
       st.dataframe(low_stock_df)
-   
+    low_stock_products = get_low_stock_products(connect)
+
+    df_low = pd.DataFrame(
+    low_stock_products,
+    columns=["Product","Current Stock","Minimum Stock"]
+   )
+
+    if not df_low.empty:
+
+     st.subheader("⚠ Low Stock Alert")
+
+     st.dataframe(df_low, use_container_width=True)

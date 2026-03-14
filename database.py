@@ -359,6 +359,15 @@ def get_product_id(conn, product_name):
     result = cursor.fetchone()
 
     return result[0] if result else None
+def get_low_stock_products(conn):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT name, quantity, min_stock FROM products WHERE quantity <= min_stock"
+    )
+
+    return cursor.fetchall()
 def get_stock_history(conn):
 
     cursor = conn.cursor()
