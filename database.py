@@ -96,19 +96,53 @@ def get_products(conn):
     cursor.execute("SELECT * FROM products")
 
     return cursor.fetchall()
+def create_stock_transactions_table(conn):
 
+    cursor = conn.cursor()
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS stock_transactions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product TEXT,
+        action TEXT,
+        quantity INTEGER,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    conn.commit()
+
+def add_stock_transaction(conn, product, action, quantity):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO stock_transactions (product, action, quantity) VALUES (?, ?, ?)",
+        (product, action, quantity)
+    )
+
+    conn.commit()
 def update_stock(conn, product_id, quantity_change):
 
     cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT name FROM products WHERE id=?",
+        (product_id,)
+    )
+
+    product_name = cursor.fetchone()[0]
 
     cursor.execute(
         "UPDATE products SET quantity = quantity + ? WHERE id=?",
         (quantity_change, product_id)
     )
 
-    conn.commit()
+    action = "Stock In" if quantity_change > 0 else "Stock Out"
 
+    add_stock_transaction(conn, product_name, action, abs(quantity_change))
+
+    conn.commit()
 
 def total_products(conn):
 
@@ -293,23 +327,26 @@ def update_delivery_status(conn, delivery_id, status):
 
     if status == "Delivered":
 
-        product_id = get_product_id(conn, product)
+     product_id = get_product_id(conn, product)
 
-        cursor.execute(
-            "SELECT quantity FROM products WHERE id=?",
-            (product_id,)
-        )
+     cursor.execute(
+        "SELECT quantity FROM products WHERE id=?",
+        (product_id,)
+     )
 
-        current_stock = cursor.fetchone()[0]
+     current_stock = cursor.fetchone()[0]
 
-        # ✅ prevent negative inventory
-        if current_stock >= qty:
-            cursor.execute(
-                "UPDATE products SET quantity = quantity - ? WHERE id=?",
-                (qty, product_id)
+     if current_stock >= qty:
+
+          cursor.execute(
+            "UPDATE products SET quantity = quantity - ? WHERE id=?",
+            (qty, product_id)
             )
-        else:
-            return "Not enough stock"
+
+          add_stock_transaction(conn, product, "Delivery", -qty)
+
+     else:
+        return "Not enough stock"
 
     conn.commit()
 def get_product_id(conn, product_name):
@@ -324,3 +361,12 @@ def get_product_id(conn, product_name):
     result = cursor.fetchone()
 
     return result[0] if result else None
+def get_stock_history(conn):
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT product, action, quantity, date FROM stock_transactions ORDER BY date DESC"
+    )
+
+    return cursor.fetchall()

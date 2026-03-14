@@ -1,7 +1,7 @@
 import streamlit as st
 from database import *
 import random
-import products, deliveries, dashboard, stock, transfers
+import products, deliveries, dashboard, stock, transfers,history
 
 
 def generate_otp():
@@ -17,6 +17,7 @@ def initialize_database(conn):
     create_products_table(conn)
     create_deliveries_table(conn)
     create_transfers_table(conn)
+    create_stock_transactions_table(conn)
 
 
 initialize_database(connect)
@@ -116,7 +117,7 @@ else:
 
     page = st.sidebar.selectbox(
         "IMS Menu",
-        ["Dashboard", "Products", "Stock Management", "Deliveries", "Transfers"],
+        ["Dashboard", "Products", "Stock Management", "Deliveries", "Transfers","Stock History"],
     )
 
     if st.sidebar.button("Logout"):
@@ -136,3 +137,5 @@ else:
 
     elif page == "Transfers":
         transfers.show(connect)
+    elif page == "Stock History":
+        history.show(connect)
